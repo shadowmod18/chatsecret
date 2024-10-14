@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site avec Connexion et Médias</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; text-align: center; margin: 0; padding: 0; background: linear-gradient(to bottom, #ff7e5f, #feb47b); color: #333; transition: background-color 0.5s; }
+        #videoContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 1000; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        #content, #mediaPage { display: none; }
+        #content { background: linear-gradient(to right, #4b6cb7, #182848); padding: 20px; border-radius: 10px; animation: fadeIn 1s ease-in-out; }
+        #content h1 { color: #fff; font-size: 2em; margin-bottom: 20px; }
+        #password { padding: 10px; border-radius: 5px; border: none; margin-bottom: 10px; }
+        button { padding: 10px 20px; background: #fff; color: #4b6cb7; border: none; border-radius: 5px; cursor: pointer; transition: background 0.3s, color 0.3s; }
+        button:hover { background: #4b6cb7; color: #fff; }
+        #header { display: flex; justify-content: center; align-items: center; background: linear-gradient(to right, #4a90e2, #0072ff); padding: 10px; transition: background-color 0.5s; }
+        #header img { max-height: 50px; }
+        #search-bar { margin: 20px 0; }
+        #searchInput { padding: 8px; width: 80%; max-width: 300px; transition: all 0.3s; }
+        #results { margin-top: 20px; }
+        .media-wrapper { margin-bottom: 20px; background: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 10px; overflow: hidden; max-width: 250px; margin: auto; transform: scale(1); transition: transform 0.3s, box-shadow 0.3s; }
+        .media-wrapper:hover { transform: scale(1.05); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); }
+        .media-item { width: 100%; height: auto; border-bottom: 3px solid #f0f0f0; }
+        .media-details { padding: 10px; font-size: 0.8em; color: #555; }
+        .media-title { font-weight: bold; margin-bottom: 5px; font-size: 1.1em; }
+        .media-user { color: #888; }
+        #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; background: #4a90e2; color: #fff; border: none; border-radius: 50%; padding: 10px; cursor: pointer; transition: background-color 0.3s, transform 0.3s; }
+        #backToTop:hover { background-color: #357ABD; transform: scale(1.1); }
+        #noResults { display: none; font-size: 1.2em; color: #333; margin-top: 20px; animation: fadeIn 1s ease-in-out; }
+        #noResultsIcon { font-size: 2em; color: #ff7e5f; margin-bottom: 10px; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        #content, #mediaPage { animation: fadeIn 1s ease-in; }
+        #header, #search-bar, #results { animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video autoplay>
+            <source src="https://i.imgur.com/zo7zRYp.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div id="content">
+        <h1>Secure Connection Page</h1>
+        <input type="password" id="password" placeholder="Enter Password">
+        <button onclick="checkPassword()">Submit</button>
+    </div>
+    <div id="mediaPage">
+        <div id="header">
+            <img src="logo.png" alt="Site Logo">
+        </div>
+        <div id="search-bar">
+            <input type="text" id="searchInput" placeholder="Search for videos or images by title" oninput="search()">
+        </div>
+        <div id="results"></div>
+        <div id="noResults">
+            <div id="noResultsIcon">🚫</div>
+            Aucun résultat trouvé
+        </div>
+        <button id="backToTop" onclick="scrollToTop()">↑</button>
+    </div>
+
+    <script>
+        const media = [
+            { title: "Vidéo 1", type: "video", src: "https://i.imgur.com/zo7zRYp.mp4", user: "Utilisateur1", date: "2024-10-12" },
+            { title: "Image 1", type: "image", src: "image1.jpg", user: "Utilisateur2", date: "2024-10-13" }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('video').addEventListener('ended', function () {
+                document.getElementById('videoContainer').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            });
+
+            displayResults(media);
+        });
+
+        function checkPassword() {
+            const password = document.getElementById('password').value;
+            if (password === '95741') {
+                alert('Access granted');
+                document.getElementById('content').style.display = 'none';
+                document.getElementById('mediaPage').style.display = 'block';
+            } else {
+                alert('Access denied');
+            }
+        }
+
+        function search() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const results = media.filter(item => item.title.toLowerCase().includes(query));
+            displayResults(results);
+        }
+
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('results');
+            const noResults = document.getElementById('noResults');
+            resultsContainer.innerHTML = '';
+            if (results.length === 0) {
+                resultsContainer.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+            noResults.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            results.forEach(item => {
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('media-wrapper');
+
+                const element = document.createElement(item.type === 'video' ? 'video' : 'img');
+                element.src = item.src;
+                element.classList.add('media-item');
+                if (item.type === 'video') {
+                    element.controls = true;
+                }
+
+                const details = document.createElement('div');
+                details.classList.add('media-details');
+                details.innerHTML = `
+                    <div class="media-title">${item.title}</div>
+                    <div class="media-user">Posted by: ${item.user} on ${item.date}</div>
+                `;
+
+                wrapper.appendChild(element);
+                wrapper.appendChild(details);
+                resultsContainer.appendChild(wrapper);
+            });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('scroll', function () {
+            const button = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                button.style.display = 'block';
+            } else {
+                button.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/66ad0caf1601a2195ba01b1e/1i49vj3le';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
